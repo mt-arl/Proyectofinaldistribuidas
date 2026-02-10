@@ -1,0 +1,19 @@
+# Maven build artifacts
+/target/
+
+# Logs and temp
+*.log
+*.tmp
+
+# Java
+*.class
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+
+# JARs (built outputs)
+*.jar

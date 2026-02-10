@@ -1,0 +1,54 @@
+# Esquema para LogiFlow - Fase 2
+
+type Query {
+    # Consulta un pedido por ID [cite: 177]
+    pedido(id: ID!): Pedido
+
+    # Lista de pedidos filtrable para el dashboard [cite: 178]
+    pedidos(filtro: PedidoFiltro): [Pedido!]!
+
+    # Resumen de flota activa por zona [cite: 179]
+    flotaActiva(zonaId: ID!): FlotaResumen
+
+    # Métricas de desempeño diarias [cite: 180]
+    kpiDiario(fecha: String!, zonaId: ID): KPIDiario
+}
+
+type Pedido {
+    id: ID!
+    customerName: String
+    origin: String
+    destination: String
+    status: String
+    deliveryType: String
+    retrasoMin: Int
+    tiempoTranscurrido: String
+    repartidor: Repartidor
+}
+
+type Repartidor {
+    id: ID!
+    nombre: String
+    vehiculo: Vehiculo
+}
+
+type Vehiculo {
+    tipo: String # Motorizado, VehiculoLiviano, Camion [cite: 31]
+}
+
+type FlotaResumen {
+    total: Int
+    disponibles: Int
+    enRuta: Int
+}
+
+type KPIDiario {
+    otd: Float # On-Time Delivery [cite: 63]
+    costoPromedio: Float
+    satisfaccion: Float
+}
+
+input PedidoFiltro {
+    zonaId: ID
+    estado: String
+}

@@ -1,0 +1,40 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: pedido-service
+
+  # 1. Base de Datos (Fase 1)
+  datasource:
+    url: jdbc:postgresql://localhost:5432/logiflow
+    username: postgres
+    password: root
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+
+  # 2. Mensajería RabbitMQ - Requisito Fase 2 [cite: 117]
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    template:
+      retry:
+        enabled: true
+        initial-interval: 2s
+
+  # 3. GraphQL - Requisito Fase 2
+  graphql:
+    graphiql:
+      enabled: true # Activa la consola visual en /graphiql
+      path: /graphiql
+    schema:
+      printer:
+        enabled: true

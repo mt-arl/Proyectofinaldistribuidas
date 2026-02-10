@@ -1,0 +1,23 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: fleet-service
+
+  datasource:
+    # Usamos el nombre del servicio definido en docker-compose
+    url: jdbc:postgresql://logiflow-postgres:5432/fleet_db
+    username: postgres
+    password: root
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  rabbitmq:
+    host: logiflow-rabbitmq
+    port: 5672
+    username: guest
+    password: guest

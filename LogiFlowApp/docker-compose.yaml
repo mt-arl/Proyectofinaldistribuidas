@@ -1,0 +1,74 @@
+services:
+  logiflow-postgres:
+    image: postgres:16
+    container_name: logiflow-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+    volumes:
+      - ./postgres/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    ports: ["5432:5432"]
+    networks: [logiflow-net]
+
+  logiflow-rabbitmq:
+    image: rabbitmq:3-management
+    container_name: logiflow-rabbitmq
+    ports: ["5672:5672", "15672:15672"]
+    networks: [logiflow-net]
+
+  # Servicios Java (Usan el Dockerfile de Maven)
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    depends_on: [logiflow-postgres]
+    networks: [logiflow-net]
+
+  billing-service:
+    build: ./billing-service
+    container_name: billing-service
+    depends_on: [logiflow-postgres, logiflow-rabbitmq]
+    networks: [logiflow-net]
+
+  fleet-service:
+    build: ./fleet-service
+    container_name: fleet-service
+    depends_on: [logiflow-postgres, logiflow-rabbitmq]
+    networks: [logiflow-net]
+
+  pedido-service:
+    build: ./pedido_service
+    container_name: pedido-service
+    depends_on: [logiflow-postgres, logiflow-rabbitmq]
+    networks: [logiflow-net]
+
+  notification-service:
+    build: ./notification-service
+    container_name: notification-service
+    ports: ["8085:8085"] # Para WebSockets
+    depends_on: [logiflow-rabbitmq]
+    networks: [logiflow-net]
+
+  # Gateway GraphQL (Usa el Dockerfile de Node)
+  logiflow-apollo:
+    build: ./apollo-gateway
+    container_name: logiflow-apollo
+    ports: ["4000:4000"]
+    depends_on: [pedido-service, fleet-service]
+    networks: [logiflow-net]
+
+  # API Gateway (Kong)
+  api-gateway:
+    image: kong:3.0
+    container_name: api-gateway
+    volumes:
+      - ./api-gateway/kong.yml:/usr/local/kong/declarative/kong.yml
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /usr/local/kong/declarative/kong.yml
+      KONG_PROXY_LISTEN: 0.0.0.0:8080
+    ports: ["8080:8080"]
+    networks: [logiflow-net]
+
+networks:
+  logiflow-net:
+    driver: bridge
